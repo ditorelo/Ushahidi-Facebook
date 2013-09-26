@@ -35,8 +35,8 @@ class Socialmedia_Facebook_Controller extends Controller
 		require dirname(__DIR__) . '/libraries/facebook-php-sdk-master/src/facebook.php';
 
 		$facebook = new Facebook(array(
-				"appId"		=> "126280780764167",
-				"secret"	=> "d86997a6a2f697702e5ac1111002e250"
+				"appId"		=> socialmedia_helper::getSetting('facebook_app_id'),
+				"secret"	=> socialmedia_helper::getSetting('facebook_app_secret')
 			));
 
 		foreach ($keywords as $keyword)
@@ -56,6 +56,7 @@ class Socialmedia_Facebook_Controller extends Controller
 			} else {
 				$data["since"] = $settings->value;
 			}
+
 
 			$result = $facebook->api("/search?" . http_build_query($data));
 
@@ -77,19 +78,32 @@ class Socialmedia_Facebook_Controller extends Controller
 	*/
 	public function parse($array_result, $highest_date = 0) {
 		$statuses = $array_result["data"];
-
 		foreach ($statuses as $s) {
 			$entry = Socialmedia_Message_Model::getMessage($s["id"], $this->service->id);
 
 			// don't resave messages we already have
 			if (! $entry->loaded) 
-			{
+			{				
+				if (! isset($s["message"])) 
+				{
+					$message = $s["description"];
+				} 
+				else 
+				{
+					$message = $s["message"];
+				}
+
+				if (! isset($message)) {
+					var_dump($s);
+					die("FACEBOOK OPS!");
+				}
+
 				// set message data
 				$entry->setServiceId($this->service->id);
 				$entry->setMessageFrom($this->service->service_name);				
 				$entry->setMessageLevel($entry::STATUS_TOREVIEW);
 				$entry->setMessageId($s["id"]);
-				$entry->setMessageDetail($s["message"]);
+				$entry->setMessageDetail($message);
 				$date = strtotime($s["created_time"]);
 				$entry->setMessageDate(date("Y-m-d H:i:s", $date));
 
@@ -108,26 +122,24 @@ class Socialmedia_Facebook_Controller extends Controller
 					$media["url"][] = $s["link"];
 				}
 
-				$media = array();
 				if (isset($s["picture"])) 
 				{
 					$media["url"][] = $s["picture"];
 				}				
 
 				// geo data
-				if (isset($s["location"]))
+				if (isset($s["place"]))
 				{
-					var_dump($s["place"]);
-					die();
-
-					//twitter uses long,lat
-					$entry->setCoordinates($s["place"]["latitude"], $s["coordinates"]["coordinates"][0]);
+					if (isset($s["place"]["location"]["latitude"])) 
+					{
+						$entry->setCoordinates($s["place"]["location"]["latitude"], $s["place"]["location"]["latitude"]);
+					}
 				}
 
 				// save message and assign data to it
 				$entry->save();
 
-				//$entry->addData("url", "http://twitter.com/" . $s["user"]["screen_name"] . "/status/" . $s["id_str"]);
+				$entry->addData("url", "http://facebook.com/" . $s["id"]);
 				$entry->addAssets($media);
 
 				if ($date > $highest_date) {

@@ -27,49 +27,16 @@ class Facebook_Controller extends Admin_Controller {
 		}
 	}
 
-	// NOT USED FOR FACEBOOK
-
-	/*
-
-	// Function that tests Twitter settings
-	function test() 
-	{
-		$this->template = "";
-		$this->auto_render = FALSE;
-
-		// grab the necessary keys consumer key, secret, token, token secret
-		$consumer_key = socialmedia_helper::getSetting('twitter_api_key');
-		$consumer_secret = socialmedia_helper::getSetting('twitter_api_key_secret');
-		$oauth_token = socialmedia_helper::getSetting('twitter_token');
-		$oauth_token_secret = socialmedia_helper::getSetting('twitter_token_secret');
-
-		$connection = new Twitter_Oauth($consumer_key, $consumer_secret, $oauth_token, $oauth_token_secret);
-		$connection->decode_json = FALSE;
-		$connection->get('account/verify_credentials');
-
-		if ($connection->http_code == 200)
-		{
-			echo json_encode(array("status" => "success", "message" => Kohana::lang('ui_main.success')));
-		}
-		else
-		{
-			echo json_encode(array("status" => "error", "message" => Kohana::lang('ui_main.error') . " - " . Kohana::lang('ui_admin.error_twitter')));
-		}
-	}
-
 	function index()
 	{
-		$this->template->content = new View('admin/settings/socialmedia/twitter');
+		$this->template->content = new View('admin/settings/socialmedia/facebook');
 		$this->template->content->title = Kohana::lang('ui_admin.settings');
 
 		// setup and initialize form field names
 		$form = array
 		(
-			'twitter_api_key' => '',
-			'twitter_api_key_secret' => '',
-			'twitter_token' => '',
-			'twitter_token_secret' => '',
-			'twitter_hashtags' => ''
+			'facebook_app_secret' => '',
+			'facebook_app_id' => '',
 		);
 		//	Copy the form as errors, so the errors will be stored with keys
 		//	corresponding to the form field names
@@ -89,19 +56,15 @@ class Facebook_Controller extends Admin_Controller {
 
 			// Add some rules, the input field, followed by a list of checks, carried out in order
 
-			$post->add_rules('twitter_api_key','required', 'length[1,150]');
-			$post->add_rules('twitter_api_key_secret','required', 'length[1,150]');
-			$post->add_rules('twitter_token','required', 'length[1,150]');
-			$post->add_rules('twitter_token_secret','required', 'length[1,150]');
+			$post->add_rules('facebook_app_id','required', 'length[1,150]');
+			$post->add_rules('facebook_app_secret','required', 'length[1,150]');
 			
 			// Test to see if things passed the rule checks
 			if ($post->validate())
 			{
 				// Yes! everything is valid
-				socialmedia_helper::setSetting('twitter_api_key', $post->twitter_api_key);
-				socialmedia_helper::setSetting('twitter_api_key_secret', $post->twitter_api_key_secret);
-				socialmedia_helper::setSetting('twitter_token', $post->twitter_token);
-				socialmedia_helper::setSetting('twitter_token_secret', $post->twitter_token_secret);
+				socialmedia_helper::setSetting('facebook_app_id', $post->facebook_app_id);
+				socialmedia_helper::setSetting('facebook_app_secret', $post->facebook_app_secret);
 
 				// Delete Settings Cache
 				$this->cache->delete('settings');
@@ -131,10 +94,8 @@ class Facebook_Controller extends Admin_Controller {
 		{
 			$form = array
 			(
-				'twitter_api_key' => socialmedia_helper::getSetting('twitter_api_key'),
-				'twitter_api_key_secret' => socialmedia_helper::getSetting('twitter_api_key_secret'),
-				'twitter_token' => socialmedia_helper::getSetting('twitter_token'),
-				'twitter_token_secret' => socialmedia_helper::getSetting('twitter_token_secret'),
+				'facebook_app_id' => socialmedia_helper::getSetting('facebook_api_id'),
+				'facebook_app_secret' => socialmedia_helper::getSetting('facebook_app_secret'),
 			);
 		}
 		
@@ -144,10 +105,9 @@ class Facebook_Controller extends Admin_Controller {
 		$this->template->content->form_saved = $form_saved;
 
 		// Javascript Header
-		$this->themes->js = new View('admin/settings/socialmedia/twitter_js');
+		$this->themes->js = new View('admin/settings/socialmedia/facebook_js');
 
 	}
-	*/
 
 
 
