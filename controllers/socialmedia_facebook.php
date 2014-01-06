@@ -32,7 +32,7 @@ class Socialmedia_Facebook_Controller extends Controller
 	*/
 	public function search($keywords, $location, $since)
 	{
-		require dirname(__DIR__) . '/libraries/facebook-php-sdk-master/src/facebook.php';
+		require_once dirname(__DIR__) . '/libraries/facebook-php-sdk-master/src/facebook.php';
 
 		$facebook = new Facebook(array(
 				"appId"		=> socialmedia_helper::getSetting('facebook_app_id'),
@@ -83,24 +83,28 @@ class Socialmedia_Facebook_Controller extends Controller
 
 			// don't resave messages we already have
 			if (! $entry->loaded) 
-			{				
-				if (! isset($s["message"])) 
+			{
+
+				if (isset($s["description"])) 
 				{
 					$message = $s["description"];
 				} 
-				else 
+				elseif (isset($s["message"]))
 				{
 					$message = $s["message"];
 				}
+				elseif (isset($s["caption"])) 
+				{
+					$message = $s["caption"];
+				}
 
-				if (! isset($message)) {
-					var_dump($s);
-					die("FACEBOOK OPS!");
+				if (empty($message)) {
+					$message = "[empty message]";
 				}
 
 				// set message data
 				$entry->setServiceId($this->service->id);
-				$entry->setMessageFrom($this->service->service_name);				
+				$entry->setMessageFrom($this->service->service_name);
 				$entry->setMessageLevel($entry::STATUS_TOREVIEW);
 				$entry->setMessageId($s["id"]);
 				$entry->setMessageDetail($message);
